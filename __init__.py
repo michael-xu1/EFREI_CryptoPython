@@ -11,20 +11,27 @@ app = Flask(__name__)
 def hello_world():
     return render_template('hello.html')
   
-@app.route('/key')
-def generate_key():
-    key = Fernet.generate_key().decode()
-    return f"Voici votre clé : {key}"
+@app.before_request
+def set_session_key():
+    # Générer une clé uniquement si elle n’existe pas déjà dans la session
+    if 'fernet_key' not in session:
+        session['fernet_key'] = Fernet.generate_key().decode()  
 
-@app.route('/encrypt/<key>/<string:valeur>')
+@app.route('/encrypt/<string:valeur>')
 def encryptage(key,valeur):
+    key = session.get('fernet_key')
+    if not key:
+        return "Erreur : clé de session introuvable."  
     f = Fernet(key.encode())
     valeur_bytes = valeur.encode()  # Conversion str -> bytes
     token = f.encrypt(valeur_bytes)  # Encrypt la valeur
     return f"Valeur encryptée : {token.decode()}"  # Retourne le token en str
 
-@app.route('/decrypt/<key>/<string:valeur>')
+@app.route('/decrypt/<string:valeur>')
 def decryptage(key,valeur):
+    key = session.get('fernet_key')
+    if not key:
+        return "Erreur : clé de session introuvable."
     f = Fernet(key.encode())
     valeur_bytes = valeur.encode()  # Conversion str -> bytes
     token = f.decrypt(valeur_bytes)  # Dencrypt la valeur
