@@ -4,7 +4,7 @@ from flask import render_template
 from flask import json
 from urllib.request import urlopen
 import sqlite3
-#test                                                                                                                         
+#testoui                                                                                                  
 app = Flask(__name__)
 app.secret_key = "une_clé_secrète_pour_la_session"  # Obligatoire pour les sessions
  
