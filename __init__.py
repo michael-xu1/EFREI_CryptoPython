@@ -5,17 +5,20 @@ from flask import json
 from urllib.request import urlopen
 import sqlite3
 #test                                                                                                                         
-app = Flask(__name__)                                                                                                                  
-                                                                                                                                       
-@app.route('/')
-def hello_world():
-    return render_template('hello.html')
-  
+app = Flask(__name__)
+app.secret_key = "une_clé_secrète_pour_la_session"  # Obligatoire pour les sessions
+
+
 @app.before_request
 def set_session_key():
     # Générer une clé uniquement si elle n’existe pas déjà dans la session
     if 'fernet_key' not in session:
         session['fernet_key'] = Fernet.generate_key().decode()  
+      
+@app.route('/')
+def hello_world():
+    return render_template('hello.html')
+  
 
 @app.route('/encrypt/<string:valeur>')
 def encryptage(key,valeur):
